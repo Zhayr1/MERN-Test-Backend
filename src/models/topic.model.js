@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const topicSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
+  name: { type: String, required: true, unique: false },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",

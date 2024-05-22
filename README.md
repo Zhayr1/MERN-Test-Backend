@@ -4,9 +4,7 @@ Este proyecto está hecho con Express y Node.js y se puede levantar utilizando D
 
 ## Pasos para levantar el proyecto
 
-1. Instalar las dependencias de Node.js con el comando:
-
-npm i
+1. Crear un archivo .env tomando como referencia el archivo .env.example.
 
 2. Hacer build del proyecto utilizando Docker Compose:
 

@@ -34,7 +34,7 @@ app.use(cors(corsOptions));
 app.use(morgan("common"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(filter());
+app.use(filter());
 
 // Routes
 app.use("/api/auth", authRoutes);

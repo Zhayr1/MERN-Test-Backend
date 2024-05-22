@@ -22,14 +22,6 @@ const getCategories = async (req, res, next) => {
 };
 
 const createCategory = async (req, res, next) => {
-  const errors = validationResult(req);
-
-  console.log(errors, req.body, req.file);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   try {
     const category = await categoryService.createCategory(req, res);
 
@@ -42,48 +34,42 @@ const createCategory = async (req, res, next) => {
   }
 };
 
-// const updateCategory = async (req, res, next) => {
-//   const errors = validationResult(req);
+const updateCategory = async (req, res, next) => {
+  try {
+    const category = await categoryService.updateCategory(req, res);
 
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
+    res.status(200).json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
-//   try {
-//     const category = await categoryService.updateCategory(req, res);
+const deleteCategory = async (req, res, next) => {
+  const errors = validationResult(req);
 
-//     res.status(200).json({
-//       success: true,
-//       data: category,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-// const deleteCategory = async (req, res, next) => {
-//   const errors = validationResult(req);
+  try {
+    await categoryService.deleteCategory(req, res);
 
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
-
-//   try {
-//     await categoryService.deleteCategory(req, res);
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Category deleted successfully",
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    res.status(200).json({
+      success: true,
+      message: "Category deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   getCategories,
   //   findOneCategory,
   createCategory,
-  //   updateCategory,
-  //   deleteCategory,
+  updateCategory,
+  deleteCategory,
 };

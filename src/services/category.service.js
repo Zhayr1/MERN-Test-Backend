@@ -1,8 +1,7 @@
-import { matchedData } from "express-validator";
 import { CategoryModel } from "../models/category.model.js";
 import attachmentService from "./attachment.service.js";
 import { ContentTypes } from "../constants/content-types.js";
-import { logger } from "../utils/logger.util.js";
+import { matchedData } from "express-validator";
 
 const findCategories = async () => {
   const categories = await CategoryModel.find({}).populate("attachment");
@@ -53,13 +52,77 @@ const createCategory = async (req, res) => {
   return await savedCategory.save();
 };
 
-// const updateCategory = async (req, res) => {};
+const updateCategory = async (req, res) => {
+  const name = req.body.name;
 
-// const deleteCategory = async (req, res) => {};
+  const categoryId = req.params.id;
+
+  if (!categoryId) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid ID",
+    });
+  }
+
+  const auxCat = await CategoryModel.findById(categoryId);
+
+  if (!auxCat) {
+    return res.status(404).json({
+      success: false,
+      error: "Category not found",
+    });
+  }
+
+  if (name) {
+    if (typeof name !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Name must be a string",
+      });
+    }
+
+    const oldCat = await CategoryModel.findOne({ name });
+
+    if (oldCat) {
+      return res.status(400).json({
+        success: false,
+        error: "This category name is already used",
+      });
+    }
+
+    auxCat.name = name;
+  }
+  if (req.file) {
+    const savedFile = await attachmentService.createFile(
+      req.file,
+      ContentTypes.IMAGE,
+      req.user.id
+    );
+
+    auxCat.attachment = savedFile;
+  }
+
+  return await auxCat.save();
+};
+
+const deleteCategory = async (req, res) => {
+  const { id } = matchedData(req);
+
+  const auxCat = await CategoryModel.findById(id);
+
+  if (!auxCat) {
+    return res.status(404).json({
+      success: false,
+      error: "Category not found",
+    });
+  }
+
+  await auxCat.deleteOne();
+};
 
 export default {
   findCategories,
   createCategory,
-  //   updateCategory,
-  //   deleteCategory,
+  updateCategory,
+  deleteCategory,
 };

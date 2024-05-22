@@ -1,13 +1,11 @@
 import { TopicModel } from "../models/topic.model.js";
-import attachmentService from "./attachment.service.js";
-import { ContentTypes } from "../constants/content-types.js";
 import { matchedData } from "express-validator";
 import { CategoryModel } from "../models/category.model.js";
 
 const findTopicsByCategory = async (req) => {
   const { id } = matchedData(req);
 
-  const topics = await TopicModel.find({ category: { id } });
+  const topics = await TopicModel.find({ category: { _id: id } });
 
   return topics;
 };
@@ -49,71 +47,104 @@ const createTopic = async (req, res) => {
 };
 
 const updateTopic = async (req, res) => {
-  const name = req.body.name;
+  const {
+    name,
+    topicId,
+    categoryId,
+    allowsImages,
+    allowsVideos,
+    allowsDocuments,
+  } = matchedData(req);
 
-  const TopicId = req.params.id;
+  console.log(
+    name,
+    topicId,
+    categoryId,
+    allowsDocuments,
+    allowsImages,
+    allowsVideos
+  );
 
-  if (!TopicId) {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid ID",
-    });
-  }
+  const topic = await TopicModel.findById(topicId);
 
-  const auxCat = await TopicModel.findById(TopicId);
-
-  if (!auxCat) {
-    return res.status(404).json({
+  if (!topic) {
+    res.status(404).json({
       success: false,
       error: "Topic not found",
     });
+    return;
+  }
+
+  if (categoryId) {
+    const cat = await CategoryModel.findById(categoryId);
+
+    if (!cat) {
+      res.status(404).json({
+        success: false,
+        error: "Category not found",
+      });
+      return;
+    }
+
+    topic.category = cat;
   }
 
   if (name) {
-    if (typeof name !== "string") {
-      return res.status(400).json({
-        success: false,
-        error: "Name must be a string",
+    let oldTopic = undefined;
+
+    if (categoryId) {
+      oldTopic = await TopicModel.findOne({
+        name,
+        category: {
+          _id: categoryId,
+        },
+      });
+    } else {
+      oldTopic = await TopicModel.findOne({
+        name,
+        category: {
+          _id: topic.category,
+        },
       });
     }
 
-    const oldCat = await TopicModel.findOne({ name });
-
-    if (oldCat) {
-      return res.status(400).json({
+    if (oldTopic) {
+      res.status(400).json({
         success: false,
-        error: "This Topic name is already used",
+        error: "This topic name is already created in this category",
       });
+      return;
     }
 
-    auxCat.name = name;
-  }
-  if (req.file) {
-    const savedFile = await attachmentService.createFile(
-      req.file,
-      ContentTypes.IMAGE,
-      req.user.id
-    );
-
-    auxCat.attachment = savedFile;
+    topic.name = name;
   }
 
-  return await auxCat.save();
+  if (allowsDocuments !== undefined && typeof allowsDocuments === "boolean") {
+    topic.allowsDocuments = allowsDocuments;
+  }
+  if (allowsDocuments !== undefined && typeof allowsImages === "boolean") {
+    topic.allowsImages = !!allowsImages;
+  }
+  if (allowsDocuments !== undefined && typeof allowsVideos === "boolean") {
+    topic.allowsVideos = !!allowsVideos;
+  }
+
+  return await topic.save();
 };
 
 const deleteTopic = async (req, res) => {
   const { id } = matchedData(req);
 
-  const auxCat = await TopicModel.findById(id);
+  const auxTopic = await TopicModel.findById(id);
 
-  if (!auxCat) {
+  if (!auxTopic) {
     return res.status(404).json({
       success: false,
       error: "Topic not found",
     });
   }
 
-  await auxCat.deleteOne();
+  await auxTopic.deleteOne();
 };
 
 export default {

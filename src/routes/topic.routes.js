@@ -1,5 +1,4 @@
 import express from "express";
-import { upload } from "../utils/file-upload.util.js";
 import { AuthMiddleware } from "../middlewares/auth.middleware.js";
 import topicController from "../controllers/topic.controller.js";
 import { RoleMiddleware } from "../middlewares/role.middleware.js";
@@ -8,7 +7,11 @@ import { body, param } from "express-validator";
 
 export const topicRoutes = express.Router();
 
-topicRoutes.get("/", topicController.getTopicsByCategory);
+topicRoutes.get(
+  "/:id",
+  param("id", "Id is required").isMongoId().not().isEmpty().escape(),
+  topicController.getTopicsByCategory
+);
 
 topicRoutes.post(
   "/",
@@ -16,7 +19,7 @@ topicRoutes.post(
     AuthMiddleware,
     RoleMiddleware([UserRolesEnum.ADMIN]),
     body("categoryId", "CategoryId is required")
-      .isString()
+      .isMongoId()
       .not()
       .isEmpty()
       .escape(),
@@ -32,10 +35,17 @@ topicRoutes.post(
 );
 
 topicRoutes.patch(
-  "/:id",
-  AuthMiddleware,
-  RoleMiddleware([UserRolesEnum.ADMIN]),
-  upload.single("file"),
+  "/:topicId",
+  [
+    AuthMiddleware,
+    RoleMiddleware([UserRolesEnum.ADMIN]),
+    param("topicId", "Topic id is required").isMongoId().notEmpty().escape(),
+    body("categoryId", "CategoryId is required").isMongoId().escape(),
+    body("name", "Name is required").isString().escape(),
+    body("allowsImages", "Must be true or false").isBoolean(),
+    body("allowsVideos", "Must be true or false").isBoolean(),
+    body("allowsDocuments", "Must be true or false").isBoolean(),
+  ],
   topicController.updateTopic
 );
 
@@ -44,7 +54,7 @@ topicRoutes.delete(
   [
     AuthMiddleware,
     RoleMiddleware([UserRolesEnum.ADMIN]),
-    param("id", "Invalid Id").not().isEmpty().isString().escape(),
+    param("id", "Invalid Id").isMongoId().notEmpty().escape(),
   ],
   topicController.deleteTopic
 );

@@ -38,10 +38,12 @@ const updateTopic = async (req, res, next) => {
   try {
     const topic = await topicService.updateTopic(req, res);
 
-    res.status(200).json({
-      success: true,
-      data: topic,
-    });
+    if (topic) {
+      res.status(200).json({
+        success: true,
+        data: topic,
+      });
+    }
   } catch (error) {
     next(error);
   }

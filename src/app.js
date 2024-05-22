@@ -42,7 +42,7 @@ app.use(filter());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/files", fileRoutes);
+// app.use("/api/files", fileRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/contents", contentRoutes);

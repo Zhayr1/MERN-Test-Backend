@@ -15,3 +15,31 @@ docker compose build
 docker compose up backend
 
 Una vez seguidos estos pasos, el proyecto estará disponible en localhost en el puerto especificado en el archivo .env
+
+Rutas Disponibles:
+
+Auth
+POST: /api/auth/register
+POST: /api/auth/login
+
+Users
+GET: /api/users/profile
+
+Categories
+GET: /api/categories/
+POST: /api/categories/
+PATH: /api/categories/:id
+DELETE: /api/categories/:id
+
+Topics
+GET: /api/topics/:categoryId
+POST: /api/topics/
+PATCH: /api/topics/:id
+DELETE: /api/topics/:id
+
+Contents
+GET: /api/contents/public/:topicId
+GET: /api/contents/:topicId
+POST: /api/contents/
+PATCH: /api/contents/:id
+DELETE: /api/contents/:id

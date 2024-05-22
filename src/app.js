@@ -14,6 +14,7 @@ import { fileRoutes } from "./routes/file.routes.js";
 import { userRoutes } from "./routes/user.routes.js";
 import { topicRoutes } from "./routes/topic.routes.js";
 import { categoryRoutes } from "./routes/category.routes.js";
+import { contentRoutes } from "./routes/content.routes.js";
 
 import { seedAdmin } from "./utils/seed.js";
 import filter from "content-filter";
@@ -44,6 +45,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/topics", topicRoutes);
+app.use("/api/contents", contentRoutes);
 
 // Error handler middleware
 app.use(errorHandler);

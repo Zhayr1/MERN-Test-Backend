@@ -14,4 +14,4 @@ docker compose build
 
 docker compose up backend
 
-Una vez seguidos estos pasos, el proyecto estará disponible en http://localhost:3000
+Una vez seguidos estos pasos, el proyecto estará disponible en localhost en el puerto especificado en el archivo .env

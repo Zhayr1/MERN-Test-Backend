@@ -1,0 +1,48 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: .
+    command: npm run start:dev
+    env_file:
+      - ./.env
+    ports:
+      - ${PORT:?err}:${PORT:?err}
+    volumes:
+      - .:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules  
+    depends_on:
+      - mongodb
+    networks:
+      - network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - '${MONGODB_PORT?err}:${MONGODB_PORT?err}'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME?err}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD?err}
+    volumes:
+      - ./mongodb_data:/data/db:rw
+    networks:
+      - network  
+
+  test_mongodb:
+    image: mongo:latest
+    container_name: test_mongodb
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: testUsername
+      MONGO_INITDB_ROOT_PASSWORD: testPassword
+    networks:
+      - network  
+
+networks:
+  network:
+    driver: bridge

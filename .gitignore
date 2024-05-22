@@ -1,0 +1,10 @@
+node_modules
+
+.env
+
+uploads/*
+
+combined.log
+error.log
+
+mongodb_data
